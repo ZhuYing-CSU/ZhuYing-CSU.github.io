@@ -18,7 +18,7 @@
 <meta property="og:description" content="模型预处理在神经网络模型训练好后，需要使用jit中的script函数将模型转为Torchscript语言，然后再用optimize_for_mobile函数对其进行优化，最后再使用_save_for_lite_interpreter函数保存为可用于pytorch-lite的神经网络模型文件，代码如下： import torchfrom torch.utils.mobile_optimizer im">
 <meta property="og:locale">
 <meta property="article:published_time" content="2022-06-09T07:53:00.000Z">
-<meta property="article:modified_time" content="2022-06-09T13:18:44.673Z">
+<meta property="article:modified_time" content="2022-06-09T13:20:47.979Z">
 <meta property="article:author" content="一抹竹影">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Java">
@@ -31,16 +31,128 @@
 <link rel="stylesheet" href="lib/mdui_043tiny/mdui.css">
 
 
-    <link rel="stylesheet" href="../../../../lib/iconfont/iconfont.css?v=1654780729602">
+    <link rel="stylesheet" href="../../../../lib/iconfont/iconfont.css?v=1654780877168">
     
-    <link rel="stylesheet" href="../../../../css/style.css?v=1654780729602">
+    <link rel="stylesheet" href="../../../../css/style.css?v=1654780877168">
 
     
         
-            <link rel="stylesheet" href="../../../../custom.css?v=1654780729602">
+            <link rel="stylesheet" href="../../../../custom.css?v=1654780877168">
         
     
-<meta name="generator" content="Hexo 6.2.0"></head>
+<meta name="generator" content="Hexo 6.2.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
 
 <body class="mdui-drawer-body-left">
     <div id="nexmoe-background">
@@ -101,7 +213,7 @@
 </div>
 
 
-	<script async src="../../../../js/search.js?v=1654780729603"></script>
+	<script async src="../../../../js/search.js?v=1654780877168"></script>
 
 
 
@@ -255,15 +367,15 @@
     <a><i class="nexmoefont icon-calendar-fill"></i>2022年06月09日</a>
 </div>
       
-    <a><i class="nexmoefont icon-areachart"></i>约368字</a>
+    <a><i class="nexmoefont icon-areachart"></i>约358字</a>
     <a><i class="nexmoefont icon-time-circle-fill"></i>预计需要1分钟</a>
 
 
       <h2 id="模型预处理"><a href="#模型预处理" class="headerlink" title="模型预处理"></a>模型预处理</h2><p>在神经网络模型训练好后，需要使用<code>jit</code>中的<code>script</code>函数将模型转为<code>Torchscript</code>语言，然后再用<code>optimize_for_mobile</code>函数对其进行优化，最后再使用<code>_save_for_lite_interpreter</code>函数保存为可用于<code>pytorch-lite</code>的神经网络模型文件，代码如下：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch.utils.mobile_optimizer <span class="keyword">import</span> optimize_for_mobile</span><br><span class="line"></span><br><span class="line">model.<span class="built_in">eval</span>() <span class="comment"># assume model had loaded or trained</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># convert python to torchscript</span></span><br><span class="line">scripted_model = torch.jit.script(model)</span><br><span class="line"></span><br><span class="line">optimized_scripted_model = optimize_for_mobile(scripted_model)</span><br><span class="line">optimized_scripted_model._save_for_lite_interpreter(<span class="string">&quot;your_file.tpl&quot;</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch.utils.mobile_optimizer <span class="keyword">import</span> optimize_for_mobile</span><br><span class="line"></span><br><span class="line">model.<span class="built_in">eval</span>() <span class="comment"># assume model had loaded or trained</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># convert python to torchscript</span></span><br><span class="line">scripted_model = torch.jit.script(model)</span><br><span class="line"></span><br><span class="line">optimized_scripted_model = optimize_for_mobile(scripted_model)</span><br><span class="line">optimized_scripted_model._save_for_lite_interpreter(<span class="string">"your_file.tpl"</span>)</span><br></pre></td></tr></table></figure>
 
 <h2 id="Android-Project-build-gradle-设置"><a href="#Android-Project-build-gradle-设置" class="headerlink" title="Android Project build.gradle 设置"></a>Android Project <code>build.gradle</code> 设置</h2><p>在<code>dependencies</code>一项中加入下列内容</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// Pytorch-lite framework (ver: 1.9.0)</span><br><span class="line">implementation &#x27;org.pytorch:pytorch_android_lite:1.9.0&#x27;</span><br><span class="line">implementation &#x27;org.pytorch:pytorch_android_torchvision:1.9.0&#x27;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// Pytorch-lite framework (ver: 1.9.0)</span><br><span class="line">implementation 'org.pytorch:pytorch_android_lite:1.9.0'</span><br><span class="line">implementation 'org.pytorch:pytorch_android_torchvision:1.9.0'</span><br></pre></td></tr></table></figure>
 
 <h2 id="模型使用"><a href="#模型使用" class="headerlink" title="模型使用"></a>模型使用</h2><h3 id="读取模型"><a href="#读取模型" class="headerlink" title="读取模型"></a>读取模型</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">Module</span> <span class="variable">yourModel</span> <span class="operator">=</span> LiteModuleLoader.load(modelFilePath);</span><br></pre></td></tr></table></figure>
 
@@ -274,7 +386,10 @@
 
 <p>上述代码中，将<code>Bitmap</code>类型转换为<code>Tensor</code>类型时做了normalization的预处理，但可以不做。</p>
 <h3 id="模型输出转换为图片"><a href="#模型输出转换为图片" class="headerlink" title="模型输出转换为图片"></a>模型输出转换为图片</h3><p>由于模型的输出类型为<code>Tensor</code>，若需要使用<code>opencv</code>的<code>Mat</code>类型的话，需要依次转换格式为<code>FloatArray</code>，<code>FloatBuffer</code>，<code>ByteBuffer</code>，最后到<code>Mat</code>，相关代码如下所示。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> ByteBuffer <span class="title function_">FloatBuffer2ByteBuffer</span><span class="params">(FloatBuffer originBuffer)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">ByteBuffer</span> <span class="variable">ret</span> <span class="operator">=</span> ByteBuffer.allocateDirect(originBuffer.remaining() * <span class="number">64</span>);</span><br><span class="line">	ret.order(ByteOrder.nativeOrder());</span><br><span class="line">	originBuffer.mark();</span><br><span class="line">	ret.asFloatBuffer().put(originBuffer);</span><br><span class="line">	originBuffer.reset();</span><br><span class="line">	ret.rewind();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Mat <span class="title function_">byteArray2Mat</span><span class="params">(ByteBuffer byteBuffer, <span class="type">int</span> width, <span class="type">int</span> height)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Mat</span>(width, height, CvType.CV_64FC3, byteBuffer);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Mat <span class="title function_">Tensor2Mat</span><span class="params">(Tensor input)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> byteArray2Mat(</span><br><span class="line">		FloatBuffer2ByteBuffer(FloatBuffer.wrap(input.getDataAsFloatArray())),</span><br><span class="line">		(<span class="type">int</span>) input.shape()[<span class="number">2</span>],</span><br><span class="line">		(<span class="type">int</span>) input.shape()[<span class="number">3</span>]</span><br><span class="line"> );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> ByteBuffer <span class="title function_">FloatBuffer2ByteBuffer</span><span class="params">(FloatBuffer originBuffer)</span></span><br><span class="line">{</span><br><span class="line">	<span class="type">ByteBuffer</span> <span class="variable">ret</span> <span class="operator">=</span> ByteBuffer.allocateDirect(originBuffer.remaining() * <span class="number">64</span>);</span><br><span class="line">	ret.order(ByteOrder.nativeOrder());</span><br><span class="line">	originBuffer.mark();</span><br><span class="line">	ret.asFloatBuffer().put(originBuffer);</span><br><span class="line">	originBuffer.reset();</span><br><span class="line">	ret.rewind();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Mat <span class="title function_">byteArray2Mat</span><span class="params">(ByteBuffer byteBuffer, <span class="type">int</span> width, <span class="type">int</span> height)</span></span><br><span class="line">{</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Mat</span>(width, height, CvType.CV_64FC3, byteBuffer);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Mat <span class="title function_">Tensor2Mat</span><span class="params">(Tensor input)</span></span><br><span class="line">{</span><br><span class="line">	<span class="keyword">return</span> byteArray2Mat(</span><br><span class="line">		FloatBuffer2ByteBuffer(FloatBuffer.wrap(input.getDataAsFloatArray())),</span><br><span class="line">		(<span class="type">int</span>) input.shape()[<span class="number">2</span>],</span><br><span class="line">		(<span class="type">int</span>) input.shape()[<span class="number">3</span>]</span><br><span class="line"> );</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>something <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.452ex;" xmlns="http://www.w3.org/2000/svg" width="1.357ex" height="2.149ex" role="img" focusable="false" viewBox="0 -750 600 950"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><text data-variant="double-struck" transform="scale(1,-1)" font-size="884px">𝕚</text></g></g></g></g></svg></mjx-container> something</p>
+<p><mjx-container class="MathJax" jax="SVG" display="true"><svg style="vertical-align: -0.452ex;" xmlns="http://www.w3.org/2000/svg" width="1.357ex" height="2.149ex" role="img" focusable="false" viewBox="0 -750 600 950"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><text data-variant="double-struck" transform="scale(1,-1)" font-size="884px">𝕚</text></g></g></g></g></svg></mjx-container></p>
 
       
   </article>
@@ -347,7 +462,7 @@
 
  
 
-<script async src="../../../../js/app.js?v=1654780729609"></script>
+<script async src="../../../../js/app.js?v=1654780877176"></script>
 
 
 
