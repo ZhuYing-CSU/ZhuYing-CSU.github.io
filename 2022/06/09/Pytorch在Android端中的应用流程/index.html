@@ -10,15 +10,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
     
     <link rel="shortcut icon" href="https://picture-bed-1257282729.cos.ap-guangzhou.myqcloud.com/pic-bed/202206082319214.ico" type="image/x-icon" />
-    <meta name="description" content="模型预处理 在神经网络模型训练好后，需要使用jit中的script函数将模型转为Torchscript语言，然后再用optimize_for_mobile函数对其进行优化，最后再使用_save_for_lite_interpreter函数保存为可用于pytorch-lite的神经网络模型文件，代码如下： 12345678910import torchfrom torch.utils.mobile_">
+    <meta name="description" content="模型预处理 在神经网络模型训练好后，需要使用jit中的script函数将模型转为Torchscript语言，然后再用optimize_for_mobile函数对其进行优化，最后再使用_save_for_lite_interpreter函数保存为可用于pytorch-lite的神经网络模型文件，代码如下： import torch from torch.utils.mobile_optimizer">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Pytorch在Android端中的应用流程">
 <meta property="og:url" content="https://zhuying-csu.github.io/2022/06/09/Pytorch%E5%9C%A8Android%E7%AB%AF%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8%E6%B5%81%E7%A8%8B/index.html">
 <meta property="og:site_name" content="晓风昼影">
-<meta property="og:description" content="模型预处理 在神经网络模型训练好后，需要使用jit中的script函数将模型转为Torchscript语言，然后再用optimize_for_mobile函数对其进行优化，最后再使用_save_for_lite_interpreter函数保存为可用于pytorch-lite的神经网络模型文件，代码如下： 12345678910import torchfrom torch.utils.mobile_">
+<meta property="og:description" content="模型预处理 在神经网络模型训练好后，需要使用jit中的script函数将模型转为Torchscript语言，然后再用optimize_for_mobile函数对其进行优化，最后再使用_save_for_lite_interpreter函数保存为可用于pytorch-lite的神经网络模型文件，代码如下： import torch from torch.utils.mobile_optimizer">
 <meta property="og:locale">
 <meta property="article:published_time" content="2022-06-09T06:53:00.000Z">
-<meta property="article:modified_time" content="2022-06-09T14:30:11.615Z">
+<meta property="article:modified_time" content="2022-06-09T15:37:08.794Z">
 <meta property="article:author" content="一抹竹影">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Java">
@@ -31,18 +31,17 @@
 <link rel="stylesheet" href="/lib/mdui_043tiny/mdui.css">
 
 
-    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1654785456984">
+    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1654789949141">
     
         <link rel="stylesheet" href="//at.alicdn.com/t/font_1038733_0xvrvpg9c0r.css">
     
-    <link rel="stylesheet" href="/css/style.css?v=1654785456984">
+    <link rel="stylesheet" href="/css/style.css?v=1654789949141">
 
     
-        
-            <link rel="stylesheet" href="/custom.css?v=1654785456984">
-        
-    
-<meta name="generator" content="Hexo 6.2.0"><style>mjx-container[jax="SVG"] {
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-tomorrow.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><style>mjx-container[jax="SVG"] {
   direction: ltr;
 }
 
@@ -215,7 +214,7 @@ mjx-container[display="true"] + br {
 </div>
 
 
-	<script async src="/js/search.js?v=1654785456984"></script>
+	<script async src="/js/search.js?v=1654789949141"></script>
 
 
 
@@ -369,29 +368,69 @@ mjx-container[display="true"] + br {
     <a><i class="nexmoefont icon-calendar-fill"></i>2022年06月09日</a>
 </div>
       
-    <a><i class="nexmoefont icon-areachart"></i>约357字</a>
+    <a><i class="nexmoefont icon-areachart"></i>约359字</a>
     <a><i class="nexmoefont icon-time-circle-fill"></i>预计需要1分钟</a>
 
 
       <h2 id="模型预处理">模型预处理</h2>
 <p>在神经网络模型训练好后，需要使用<code>jit</code>中的<code>script</code>函数将模型转为<code>Torchscript</code>语言，然后再用<code>optimize_for_mobile</code>函数对其进行优化，最后再使用<code>_save_for_lite_interpreter</code>函数保存为可用于<code>pytorch-lite</code>的神经网络模型文件，代码如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> torch.utils.mobile_optimizer <span class="hljs-keyword">import</span> optimize_for_mobile<br><br>model.<span class="hljs-built_in">eval</span>() <span class="hljs-comment"># assume model had loaded or trained</span><br><br><span class="hljs-comment"># convert python to torchscript</span><br>scripted_model = torch.jit.script(model)<br><br>optimized_scripted_model = optimize_for_mobile(scripted_model)<br>optimized_scripted_model._save_for_lite_interpreter(<span class="hljs-string">"your_file.tpl"</span>)<br></code></pre></td></tr></table></figure>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> torch
+<span class="token keyword">from</span> torch<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>mobile_optimizer <span class="token keyword">import</span> optimize_for_mobile
+
+model<span class="token punctuation">.</span><span class="token builtin">eval</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment"># assume model had loaded or trained</span>
+
+<span class="token comment"># convert python to torchscript</span>
+scripted_model <span class="token operator">=</span> torch<span class="token punctuation">.</span>jit<span class="token punctuation">.</span>script<span class="token punctuation">(</span>model<span class="token punctuation">)</span>
+
+optimized_scripted_model <span class="token operator">=</span> optimize_for_mobile<span class="token punctuation">(</span>scripted_model<span class="token punctuation">)</span>
+optimized_scripted_model<span class="token punctuation">.</span>_save_for_lite_interpreter<span class="token punctuation">(</span><span class="token string">"your_file.tpl"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h2 id="android-project-build.gradle-设置">Android Project
 <code>build.gradle</code> 设置</h2>
 <p>在<code>dependencies</code>一项中加入下列内容</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs clean"><span class="hljs-comment">// Pytorch-lite framework (ver: 1.9.0)</span><br><span class="hljs-keyword">implementation</span> <span class="hljs-string">'org.pytorch:pytorch_android_lite:1.9.0'</span><br><span class="hljs-keyword">implementation</span> <span class="hljs-string">'org.pytorch:pytorch_android_torchvision:1.9.0'</span><br></code></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">// Pytorch-lite framework (ver: 1.9.0)
+implementation 'org.pytorch:pytorch_android_lite:1.9.0'
+implementation 'org.pytorch:pytorch_android_torchvision:1.9.0'<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <h2 id="模型使用">模型使用</h2>
 <h3 id="读取模型">读取模型</h3>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Module</span> <span class="hljs-variable">yourModel</span> <span class="hljs-operator">=</span> LiteModuleLoader.load(modelFilePath);<br></code></pre></td></tr></table></figure>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">Module</span> yourModel <span class="token operator">=</span> <span class="token class-name">LiteModuleLoader</span><span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span>modelFilePath<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <h3 id="读取图片">读取图片</h3>
 <p>如果没有特别的需要的话，直接用<code>Bitmap</code>去读取图像文件即可。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Bitmap</span> <span class="hljs-variable">img</span> <span class="hljs-operator">=</span> BitmapFactory.decodeFile(imgFilePath);<br></code></pre></td></tr></table></figure>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">Bitmap</span> img <span class="token operator">=</span> <span class="token class-name">BitmapFactory</span><span class="token punctuation">.</span><span class="token function">decodeFile</span><span class="token punctuation">(</span>imgFilePath<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <h3 id="模型使用-1">模型使用</h3>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Tensor</span> <span class="hljs-variable">input</span> <span class="hljs-operator">=</span> TensorImageUtils.bitmapToFloat32Tensor(<br>	originalImg,<br>	TensorImageUtils.TORCHVISION_NORM_MEAN_RGB,<br>	TensorImageUtils.TORCHVISION_NORM_STD_RGB<br>);<br><span class="hljs-type">Tensor</span> <span class="hljs-variable">output</span> <span class="hljs-operator">=</span> nnModel.forward(IValue.from(input)).toTensor();<br></code></pre></td></tr></table></figure>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">Tensor</span> input <span class="token operator">=</span> <span class="token class-name">TensorImageUtils</span><span class="token punctuation">.</span><span class="token function">bitmapToFloat32Tensor</span><span class="token punctuation">(</span>
+	originalImg<span class="token punctuation">,</span>
+	<span class="token class-name">TensorImageUtils</span><span class="token punctuation">.</span>TORCHVISION_NORM_MEAN_RGB<span class="token punctuation">,</span>
+	<span class="token class-name">TensorImageUtils</span><span class="token punctuation">.</span>TORCHVISION_NORM_STD_RGB
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name">Tensor</span> output <span class="token operator">=</span> nnModel<span class="token punctuation">.</span><span class="token function">forward</span><span class="token punctuation">(</span><span class="token class-name">IValue</span><span class="token punctuation">.</span><span class="token function">from</span><span class="token punctuation">(</span>input<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toTensor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>上述代码中，将<code>Bitmap</code>类型转换为<code>Tensor</code>类型时做了normalization的预处理，但可以不做。</p>
 <h3 id="模型输出转换为图片">模型输出转换为图片</h3>
 <p>由于模型的输出类型为<code>Tensor</code>，若需要使用<code>opencv</code>的<code>Mat</code>类型的话，需要依次转换格式为<code>FloatArray</code>，<code>FloatBuffer</code>，<code>ByteBuffer</code>，最后到<code>Mat</code>，相关代码如下所示。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> ByteBuffer <span class="hljs-title function_">FloatBuffer2ByteBuffer</span><span class="hljs-params">(FloatBuffer originBuffer)</span><br>{<br>	<span class="hljs-type">ByteBuffer</span> <span class="hljs-variable">ret</span> <span class="hljs-operator">=</span> ByteBuffer.allocateDirect(originBuffer.remaining() * <span class="hljs-number">64</span>);<br>	ret.order(ByteOrder.nativeOrder());<br>	originBuffer.mark();<br>	ret.asFloatBuffer().put(originBuffer);<br>	originBuffer.reset();<br>	ret.rewind();<br><br>	<span class="hljs-keyword">return</span> ret;<br>}<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Mat <span class="hljs-title function_">byteArray2Mat</span><span class="hljs-params">(ByteBuffer byteBuffer, <span class="hljs-type">int</span> width, <span class="hljs-type">int</span> height)</span><br>{<br>	<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Mat</span>(width, height, CvType.CV_64FC3, byteBuffer);<br>}<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Mat <span class="hljs-title function_">Tensor2Mat</span><span class="hljs-params">(Tensor input)</span><br>{<br>	<span class="hljs-keyword">return</span> byteArray2Mat(<br>		FloatBuffer2ByteBuffer(FloatBuffer.wrap(input.getDataAsFloatArray())),<br>		(<span class="hljs-type">int</span>) input.shape()[<span class="hljs-number">2</span>],<br>		(<span class="hljs-type">int</span>) input.shape()[<span class="hljs-number">3</span>]<br> );<br>}<br></code></pre></td></tr></table></figure>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token class-name">ByteBuffer</span> <span class="token class-name">FloatBuffer2ByteBuffer</span><span class="token punctuation">(</span><span class="token class-name">FloatBuffer</span> originBuffer<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token class-name">ByteBuffer</span> ret <span class="token operator">=</span> <span class="token class-name">ByteBuffer</span><span class="token punctuation">.</span><span class="token function">allocateDirect</span><span class="token punctuation">(</span>originBuffer<span class="token punctuation">.</span><span class="token function">remaining</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">64</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	ret<span class="token punctuation">.</span><span class="token function">order</span><span class="token punctuation">(</span><span class="token class-name">ByteOrder</span><span class="token punctuation">.</span><span class="token function">nativeOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	originBuffer<span class="token punctuation">.</span><span class="token function">mark</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	ret<span class="token punctuation">.</span><span class="token function">asFloatBuffer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>originBuffer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	originBuffer<span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	ret<span class="token punctuation">.</span><span class="token function">rewind</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">return</span> ret<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token class-name">Mat</span> <span class="token function">byteArray2Mat</span><span class="token punctuation">(</span><span class="token class-name">ByteBuffer</span> byteBuffer<span class="token punctuation">,</span> <span class="token keyword">int</span> width<span class="token punctuation">,</span> <span class="token keyword">int</span> height<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">Mat</span><span class="token punctuation">(</span>width<span class="token punctuation">,</span> height<span class="token punctuation">,</span> <span class="token class-name">CvType</span><span class="token punctuation">.</span>CV_64FC3<span class="token punctuation">,</span> byteBuffer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token class-name">Mat</span> <span class="token class-name">Tensor2Mat</span><span class="token punctuation">(</span><span class="token class-name">Tensor</span> input<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">return</span> <span class="token function">byteArray2Mat</span><span class="token punctuation">(</span>
+		<span class="token class-name">FloatBuffer2ByteBuffer</span><span class="token punctuation">(</span><span class="token class-name">FloatBuffer</span><span class="token punctuation">.</span><span class="token function">wrap</span><span class="token punctuation">(</span>input<span class="token punctuation">.</span><span class="token function">getDataAsFloatArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+		<span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span> input<span class="token punctuation">.</span><span class="token function">shape</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+		<span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span> input<span class="token punctuation">.</span><span class="token function">shape</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span>
+ <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
       
   </article>
@@ -465,7 +504,7 @@ build.gradle 设置</span></a></li><li class="toc-item toc-level-2"><a class="to
 
  
 
-<script async src="/js/app.js?v=1654785456990"></script>
+<script async src="/js/app.js?v=1654789949148"></script>
 
 
 
@@ -476,6 +515,9 @@ build.gradle 设置</span></a></li><li class="toc-item toc-level-2"><a class="to
 	});
 </script>
 
-</body>
+<!-- hexo injector body_end start -->
+<script src="/assets/prism-bundle.js"></script>
+<script src="/assets/prism-plus.js" data-pjax=""></script>
+<!-- hexo injector body_end end --></body>
 
 </html>
